@@ -1,0 +1,20 @@
+import os
+import glob
+
+def encontrar_archivos_coordenadas(self, ruta_directorio_coordenadas, nombre_base_imagen):
+    # Esta función busca todos los archivos de coordenadas correspondientes a la imagen base.
+    # Por ejemplo, frame_00000.png_1.txt, frame_00000.png_2.txt, etc.
+    patron_busqueda = f"{nombre_base_imagen}_*.txt"
+    ruta_busqueda = os.path.join(ruta_directorio_coordenadas, patron_busqueda)
+    archivos_coordenadas = glob.glob(ruta_busqueda)
+    return archivos_coordenadas
+
+# Uso de la función:
+nombre_base_imagen = os.path.basename(imagen_path).replace('.png', '')  # frame_00000 si imagen_path es frame_00000.png
+archivos_coord = encontrar_archivos_coordenadas(ruta_directorio_coordenadas, nombre_base_imagen)
+
+for archivo_coord in archivos_coord:
+    # Aquí tienes la ruta completa a cada archivo de coordenadas
+    # Procesa cada conjunto de coordenadas como necesites
+    coordenadas = np.loadtxt(archivo_coord, delimiter=',')
+    # ... Realiza el procesamiento de las coordenadas ...
