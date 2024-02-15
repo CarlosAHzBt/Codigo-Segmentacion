@@ -4,6 +4,7 @@ from ManejadorDeBag.ProcesadorBags import ProcesadorBags
 from AdministradorDeCarpetas import AdministradorDeCarpetas
 from ManejadorDeImagenes    import ManejadorDeImagenes
 from CargadorDeRecursos import CargadorDeRecursos
+from TransformacionROI import ROICoordinateConverter
 import os
 
 
@@ -27,6 +28,7 @@ class Main:
             nombre_bag = partes_ruta[-2] if len(partes_ruta) > 2 else 'DefaultBagName'
             ruta_carpeta_segmentadas = os.path.join(carpeta_base, nombre_bag, "imagenes_segmentadas")
             ruta_bag = os.path.join(carpeta_base, nombre_bag)
+            
 
 
             # Crea la carpeta de imágenes segmentadas si no existe.
@@ -66,9 +68,36 @@ class Main:
 
                     # Guarda la imagen segmentada utilizando el manejador de imágenes.
                     manejador_de_imagenes.guardar_imagen_segmentada(imagen_segmentada, ruta_completa_archivo)
+                    
 
+                    #Medir el circulo del bache para ver si es un bache o no un bache debe ser mayor a 15cm de diametro
+                    try:
+                        #Generar la ruta a la carpeta de ply
+                        ruta_ply = os.path.join(ruta_bag, "ply")
+                        ply_path = os.path.join(ruta_ply, f"{os.path.splitext(os.path.basename(imagen_path))[0]}.ply")
+                        if not os.path.isfile(ply_path):
+                            raise FileNotFoundError(f"No se encontró el archivo ply: {ply_path}")
+
+                        #Cargar la nube de puntos para obtener la escala de conversion de pixeles a metros
+                        nube_de_puntos = self.modelo.cargar_ply(ply_path)
+                        #Obtener el circulo inscrito
+                        circulo_inscrito = segmentador.dibujar_circulo_inscrito(nube_de_puntos, coordenadas_path)
+                        #obtener escala de conversion de pixeles a metros obteniedno la altura de captura
+                        altura_captura = ROICoordinateConverter
+                        superficie_estimada = altura_captura.estimar_altura_de_captura(nube_de_puntos)
+                        print(altura_captura.manejo_transformacion_roi(circulo_inscrito, imagen_path, superficie_estimada))
+                    except Exception as e:
+                        print(f"Error al medir el circulo inscrito: {e}")
+
+                        
+
+
+                        
+                        
+                        nube_de_puntos = self.modelo.cargar_ply(os.path.join(ruta_bag, "nube_de_puntos.ply"))
                 except Exception as e:
                     print(f"Error al segmentar la imagen {imagen_path}: {e}")
+                
 
 
     def extraer_datos_de_bagFiles(self, carpeta_bags):

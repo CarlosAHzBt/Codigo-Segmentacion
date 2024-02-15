@@ -2,6 +2,7 @@ import torch
 from PIL import Image
 from torchvision.transforms import Compose, ToTensor, Normalize
 from CargarModelo import CargarModelo
+import open3d as o3d
 
 class CargadorDeRecursos:
     def __init__(self,modelo):
@@ -22,3 +23,6 @@ class CargadorDeRecursos:
         ])
         return transformaciones(imagen).unsqueeze(0)
     
+    def cargar_ply(self,ply_path):
+        pcd = o3d.io.read_point_cloud(ply_path)
+        return pcd
